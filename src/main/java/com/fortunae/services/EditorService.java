@@ -7,12 +7,12 @@ import com.fortunae.dtos.response.DeleteUserResponse;
 import com.fortunae.dtos.response.LoginResponse;
 import com.fortunae.dtos.response.RegisterUserResponse;
 
-public interface ViewerService {
-    RegisterUserResponse registerViewer(RegisterUserRequest request);
+public interface EditorService {
+    RegisterUserResponse registerEditor(RegisterUserRequest request);
 
-    void deleteAll();
-
-    DeleteUserResponse deleteViewer(DeleteUserRequest request);
+    DeleteUserResponse deleteEditor(DeleteUserRequest request);
 
     LoginResponse login(LoginRequest loginRequest);
+
+    void deleteAll();
 }

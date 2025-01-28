@@ -3,12 +3,15 @@ package com.fortunae.services;
 import com.fortunae.data.model.Role;
 import com.fortunae.data.model.User;
 import com.fortunae.data.repository.UserRepository;
+import com.fortunae.dtos.request.DeleteUserRequest;
 import com.fortunae.dtos.request.LoginRequest;
 import com.fortunae.dtos.request.RegisterUserRequest;
+import com.fortunae.dtos.response.DeleteUserResponse;
 import com.fortunae.dtos.response.LoginResponse;
 import com.fortunae.dtos.response.RegisterUserResponse;
-import com.fortunae.execptions.AdminExistException;
+import com.fortunae.execptions.EditorNotFoundException;
 import com.fortunae.execptions.InvalidDetailsException;
+import com.fortunae.execptions.ViewerNotFoundException;
 import com.fortunae.utils.JwtUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
@@ -21,28 +24,38 @@ import static com.fortunae.utils.ValidationUtils.isValidEmail;
 import static com.fortunae.utils.ValidationUtils.isValidPassword;
 
 @Service
-public class AdminServiceImpl implements AdminService{
+public class EditorServiceImpl implements EditorService {
+
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    public RegisterUserResponse registerAdmin(RegisterUserRequest registerUserRequest) {
-        validateFields(registerUserRequest.getEmail(), registerUserRequest.getPassword());
-        doesUserExists(registerUserRequest.getEmail());
-        User user = modelMapper.map(registerUserRequest, User.class);
-        user.setRole(Role.ADMIN);
+    public RegisterUserResponse registerEditor(RegisterUserRequest request) {
+        validateFields(request.getEmail(), request.getPassword());
+        doesUserExists(request.getEmail());
+        User user = modelMapper.map(request, User.class);
+        user.setRole(Role.EDITOR);
         user = userRepository.save(user);
         RegisterUserResponse response = modelMapper.map(user, RegisterUserResponse.class);
-        response.setMessage("Admin registered successfully");
+        response.setMessage("Editor registered successfully");
         return response;
     }
 
     @Override
-    public void deleteAll() {
-        userRepository.deleteAll();
+    public DeleteUserResponse deleteEditor(DeleteUserRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new EditorNotFoundException("User with email " + request.getEmail() + " not found"));
+
+        if (user.getRole() == Role.EDITOR && user.getEmail().equals(request.getEmail())) {
+            userRepository.delete(user);
+            DeleteUserResponse response = new DeleteUserResponse();
+            response.setMessage("Deleted editor successfully");
+            return response ;
+        }
+
+        throw new IllegalStateException("The user is not a EDITOR or email does not match");
     }
 
     private void validateFields(String email, String password) {
@@ -53,7 +66,7 @@ public class AdminServiceImpl implements AdminService{
 
     private void doesUserExists(String email){
         User user = userRepository.findByEmail(email).orElse(null);
-        if (user != null)throw new AdminExistException(String.format("User with email: %s already exits", email));
+        if (user != null)throw new ViewerNotFoundException(String.format("User with email: %s already exits", email));
     }
 
     @Override
@@ -87,4 +100,9 @@ public class AdminServiceImpl implements AdminService{
         return loginResponse;
     }
 
+
+    @Override
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
 }

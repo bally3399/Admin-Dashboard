@@ -4,15 +4,20 @@ import com.fortunae.data.model.Role;
 import com.fortunae.data.model.User;
 import com.fortunae.data.repository.UserRepository;
 import com.fortunae.dtos.request.DeleteUserRequest;
+import com.fortunae.dtos.request.LoginRequest;
 import com.fortunae.dtos.request.RegisterUserRequest;
 import com.fortunae.dtos.response.DeleteUserResponse;
+import com.fortunae.dtos.response.LoginResponse;
 import com.fortunae.dtos.response.RegisterUserResponse;
-import com.fortunae.execptions.AdminExistException;
 import com.fortunae.execptions.InvalidDetailsException;
 import com.fortunae.execptions.ViewerNotFoundException;
+import com.fortunae.utils.JwtUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 import static com.fortunae.utils.ValidationUtils.isValidEmail;
 import static com.fortunae.utils.ValidationUtils.isValidPassword;
@@ -44,8 +49,17 @@ public class ViewerServiceImpl implements ViewerService {
 
     @Override
     public DeleteUserResponse deleteViewer(DeleteUserRequest request) {
-        doesUserExists(request.getEmail());
-        return null;
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ViewerNotFoundException("User with email " + request.getEmail() + " not found"));
+
+        if (user.getRole() == Role.VIEWER && user.getEmail().equals(request.getEmail())) {
+            userRepository.delete(user);
+            DeleteUserResponse response = new DeleteUserResponse();
+            response.setMessage("Deleted viewer successfully");
+            return response ;
+        }
+
+        throw new IllegalStateException("The user is not a VIEWER or email does not match");
     }
 
     private void validateFields(String email, String password) {
@@ -58,5 +72,37 @@ public class ViewerServiceImpl implements ViewerService {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user != null)throw new ViewerNotFoundException(String.format("User with email: %s already exits", email));
     }
+
+    @Override
+    public LoginResponse login(LoginRequest loginRequest) {
+        String email = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
+        return checkLoginDetail(email, password);
+    }
+
+    private LoginResponse checkLoginDetail(String email, String password) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()){
+            User user = optionalUser.get();
+            if (user.getPassword().equals(password)) {
+                return loginResponseMapper(user);
+            } else {
+                throw new InvalidDetailsException("Invalid username or password");
+            }
+        } else {
+            throw new InvalidDetailsException("Invalid username or password");
+        }
+    }
+
+    private LoginResponse loginResponseMapper(User admin) {
+        LoginResponse loginResponse = new LoginResponse();
+        String accessToken = JwtUtils.generateAccessToken(admin.getId());
+        BeanUtils.copyProperties(admin, loginResponse);
+        loginResponse.setJwtToken(accessToken);
+        loginResponse.setMessage("Login Successful");
+        loginResponse.setRole(admin.getRole().toString());
+        return loginResponse;
+    }
+
 
 }
