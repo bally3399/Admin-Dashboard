@@ -1,15 +1,15 @@
 package com.fortunae.dtos.request;
 
 import com.fortunae.data.model.Role;
-import lombok.*;
 import jakarta.validation.constraints.*;
+import lombok.*;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class RegisterUserRequest {
+public class RegisterAdminRequest {
     @NotBlank(message = "Username is required")
     @NotEmpty(message = "Username must not be empty")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")

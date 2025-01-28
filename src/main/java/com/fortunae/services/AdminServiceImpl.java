@@ -1,12 +1,12 @@
 package com.fortunae.services;
 
+import com.fortunae.data.model.Admin;
 import com.fortunae.data.model.Role;
 import com.fortunae.data.model.User;
+import com.fortunae.data.repository.AdminRepository;
 import com.fortunae.data.repository.UserRepository;
-import com.fortunae.dtos.request.LoginRequest;
-import com.fortunae.dtos.request.RegisterUserRequest;
-import com.fortunae.dtos.response.LoginResponse;
-import com.fortunae.dtos.response.RegisterUserResponse;
+import com.fortunae.dtos.request.*;
+import com.fortunae.dtos.response.*;
 import com.fortunae.execptions.AdminExistException;
 import com.fortunae.execptions.InvalidDetailsException;
 import com.fortunae.utils.JwtUtils;
@@ -23,26 +23,28 @@ import static com.fortunae.utils.ValidationUtils.isValidPassword;
 @Service
 public class AdminServiceImpl implements AdminService{
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+
+    @Autowired
+    private AdminRepository adminRepository;
 
     @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    public RegisterUserResponse registerAdmin(RegisterUserRequest registerUserRequest) {
+    public RegisterUserResponse registerAdmin(RegisterAdminRequest registerUserRequest) {
         validateFields(registerUserRequest.getEmail(), registerUserRequest.getPassword());
         doesUserExists(registerUserRequest.getEmail());
-        User user = modelMapper.map(registerUserRequest, User.class);
-        user.setRole(Role.ADMIN);
-        user = userRepository.save(user);
-        RegisterUserResponse response = modelMapper.map(user, RegisterUserResponse.class);
+        Admin admin = modelMapper.map(registerUserRequest, Admin.class);
+        admin = adminRepository.save(admin);
+        RegisterUserResponse response = modelMapper.map(admin, RegisterUserResponse.class);
         response.setMessage("Admin registered successfully");
         return response;
     }
 
     @Override
     public void deleteAll() {
-        userRepository.deleteAll();
+        adminRepository.deleteAll();
     }
 
     private void validateFields(String email, String password) {
@@ -52,8 +54,8 @@ public class AdminServiceImpl implements AdminService{
     }
 
     private void doesUserExists(String email){
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user != null)throw new AdminExistException(String.format("User with email: %s already exits", email));
+        Admin admin = adminRepository.findByEmail(email);
+        if (admin != null) throw new AdminExistException(String.format("Admin with email: %s already exits", email));
     }
 
     @Override
@@ -63,12 +65,31 @@ public class AdminServiceImpl implements AdminService{
         return checkLoginDetail(email, password);
     }
 
+    @Override
+    public RegisterUserResponse addUser(RegisterUserRequest registerUserRequest) {
+        return userService.registerUser(registerUserRequest);
+    }
+
+    @Override
+    public DeleteUserResponse deleteUser(DeleteUserRequest deleteUserRequest) {
+        return userService.deleteUser(deleteUserRequest);
+    }
+
+    @Override
+    public UpdateDetailsResponse updateDetails(UpdateDetailsRequest updateUserRequest) {
+        return userService.updateUser(updateUserRequest);
+    }
+
+    @Override
+    public AssignRolesResponse assignRoles(AssignRolesRequest request) {
+        return userService.assignRoles(request);
+    }
+
     private LoginResponse checkLoginDetail(String email, String password) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isPresent()){
-            User user = optionalUser.get();
-            if (user.getPassword().equals(password)) {
-                return loginResponseMapper(user);
+        Admin optionalUser = adminRepository.findByEmail(email);
+        if (optionalUser != null){
+            if (optionalUser.getPassword().equals(password)) {
+                return loginResponseMapper(optionalUser);
             } else {
                 throw new InvalidDetailsException("Invalid username or password");
             }
@@ -77,14 +98,16 @@ public class AdminServiceImpl implements AdminService{
         }
     }
 
-    private LoginResponse loginResponseMapper(User admin) {
+    private LoginResponse loginResponseMapper(Admin admin) {
         LoginResponse loginResponse = new LoginResponse();
         String accessToken = JwtUtils.generateAccessToken(admin.getId());
         BeanUtils.copyProperties(admin, loginResponse);
         loginResponse.setJwtToken(accessToken);
         loginResponse.setMessage("Login Successful");
-        loginResponse.setRole(admin.getRole().toString());
+        loginResponse.setRole(admin.getRoles());
         return loginResponse;
     }
+
+
 
 }

@@ -2,6 +2,7 @@ package com.fortunae.controller;
 
 import com.fortunae.dtos.request.DeleteUserRequest;
 import com.fortunae.dtos.request.LoginRequest;
+import com.fortunae.dtos.request.RegisterAdminRequest;
 import com.fortunae.dtos.request.RegisterUserRequest;
 import com.fortunae.dtos.response.DeleteUserResponse;
 import com.fortunae.dtos.response.LoginResponse;
@@ -25,7 +26,7 @@ public class AdminController {
     private AdminService adminService;
 
     @PostMapping("/registerAdmin")
-    public ResponseEntity<?> registerAdmin(@Valid @RequestBody RegisterUserRequest request) {
+    public ResponseEntity<?> registerAdmin(@Valid @RequestBody RegisterAdminRequest request) {
         RegisterUserResponse response = adminService.registerAdmin(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

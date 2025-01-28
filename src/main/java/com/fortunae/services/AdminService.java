@@ -1,14 +1,20 @@
 package com.fortunae.services;
 
-import com.fortunae.dtos.request.LoginRequest;
-import com.fortunae.dtos.request.RegisterUserRequest;
-import com.fortunae.dtos.response.LoginResponse;
-import com.fortunae.dtos.response.RegisterUserResponse;
+import com.fortunae.dtos.request.*;
+import com.fortunae.dtos.response.*;
 
 public interface AdminService {
-    RegisterUserResponse registerAdmin(RegisterUserRequest registerUserRequest);
+    RegisterUserResponse registerAdmin(RegisterAdminRequest registerAdminRequest);
 
     void deleteAll();
 
     LoginResponse login(LoginRequest loginRequest);
+
+    RegisterUserResponse addUser(RegisterUserRequest registerUserRequest);
+
+    DeleteUserResponse deleteUser(DeleteUserRequest deleteUserRequest);
+
+    UpdateDetailsResponse updateDetails(UpdateDetailsRequest updateUserRequest);
+
+    AssignRolesResponse assignRoles(AssignRolesRequest request);
 }

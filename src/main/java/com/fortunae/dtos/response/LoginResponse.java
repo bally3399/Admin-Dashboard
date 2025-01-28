@@ -1,6 +1,7 @@
 package com.fortunae.dtos.response;
 
 
+import com.fortunae.data.model.Role;
 import lombok.*;
 
 @Setter
@@ -12,7 +13,7 @@ import lombok.*;
 public class LoginResponse {
     private String message;
     private String jwtToken;
-    private String role;
+    private Role role;
     private String firstName;
     private String lastName;
 

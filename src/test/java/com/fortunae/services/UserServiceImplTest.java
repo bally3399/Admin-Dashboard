@@ -12,18 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
-public class EditorServiceImplTest {
-
+public class UserServiceImplTest {
     @Autowired
-    private EditorService editorService;
+    private UserService userService;
     private RegisterUserRequest request;
     private LoginResponse loginResponse;
 
     @BeforeEach
     public void setUp() {
-        editorService.deleteAll();
+        userService.deleteAll();
 
         request = new RegisterUserRequest();
         request.setFirstName("Janet");
@@ -31,12 +29,12 @@ public class EditorServiceImplTest {
         request.setUsername("Janney");
         request.setPassword("Password@123");
         request.setEmail("janney@gmail.com");
-        editorService.registerEditor(request);
+        userService.registerUser(request);
 
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("janney@gmail.com");
         loginRequest.setPassword("Password@123");
-        loginResponse = editorService.login(loginRequest);
+        loginResponse = userService.login(loginRequest);
     }
     @Test
     public void testThatViewerCanRegister(){
@@ -45,29 +43,30 @@ public class EditorServiceImplTest {
     }
 
     @Test
-    public void testThatEditorCannotRegisterTwice(){
+    public void testThatViewerCannotRegisterTwice(){
         RegisterUserRequest registerUserRequest = new RegisterUserRequest();
         registerUserRequest.setFirstName("James");
         registerUserRequest.setLastName("Jane");
         registerUserRequest.setEmail("jane@doe.com");
         registerUserRequest.setPassword("Password@1234");
         registerUserRequest.setUsername("janny");
-        editorService.registerEditor(registerUserRequest);
-        assertThrows(ViewerNotFoundException.class,() -> editorService.registerEditor(registerUserRequest));
+        userService.registerUser(registerUserRequest);
+        assertThrows(ViewerNotFoundException.class,() -> userService.registerUser(registerUserRequest));
     }
 
 
     @Test
-    public void testThatEditorCanLogin(){
+    public void testThatViewerCanLogin(){
         assertEquals("Login Successful", loginResponse.getMessage());
     }
 
     @Test
-    public void deleteEditorTest(){
+    public void deleteUserTest(){
         DeleteUserRequest request = new DeleteUserRequest();
         request.setEmail("janney@gmail.com");
-        DeleteUserResponse response = editorService.deleteEditor(request);
-        assertEquals("Deleted editor successfully", response.getMessage());
+        DeleteUserResponse response = userService.deleteUser(request);
+        assertEquals("Deleted viewer successfully", response.getMessage());
 
     }
+
 }

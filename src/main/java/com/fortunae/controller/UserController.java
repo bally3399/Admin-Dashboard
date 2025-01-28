@@ -6,7 +6,7 @@ import com.fortunae.dtos.request.RegisterUserRequest;
 import com.fortunae.dtos.response.DeleteUserResponse;
 import com.fortunae.dtos.response.LoginResponse;
 import com.fortunae.dtos.response.RegisterUserResponse;
-import com.fortunae.services.ViewerService;
+import com.fortunae.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,32 +18,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/viewer")
+@RequestMapping("/api/v1/User")
 @RequiredArgsConstructor
-public class ViewerController {
+public class UserController {
 
     @Autowired
-    private ViewerService viewerService;
+    private UserService userService;
 
-    @PostMapping("/registerViewer")
-    public ResponseEntity<?> registerViewer(@Valid @RequestBody RegisterUserRequest request) {
-        RegisterUserResponse response = viewerService.registerViewer(request);
+    @PostMapping("/registerUser")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterUserRequest request) {
+        RegisterUserResponse response = userService.registerUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        LoginResponse response = viewerService.login(request);
+        LoginResponse response = userService.login(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/delete")
-    public ResponseEntity<?> DeleteViewer(@Valid @RequestBody DeleteUserRequest request) {
-        DeleteUserResponse response = viewerService.deleteViewer(request);
+    public ResponseEntity<?> deleteUser(@Valid @RequestBody DeleteUserRequest request) {
+        DeleteUserResponse response = userService.deleteUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-
 
 
 }

@@ -1,15 +1,11 @@
 package com.fortunae.services;
 
-import com.fortunae.data.model.Role;
 import com.fortunae.data.model.User;
 import com.fortunae.data.repository.UserRepository;
-import com.fortunae.dtos.request.DeleteUserRequest;
-import com.fortunae.dtos.request.LoginRequest;
-import com.fortunae.dtos.request.RegisterUserRequest;
-import com.fortunae.dtos.response.DeleteUserResponse;
-import com.fortunae.dtos.response.LoginResponse;
-import com.fortunae.dtos.response.RegisterUserResponse;
+import com.fortunae.dtos.request.*;
+import com.fortunae.dtos.response.*;
 import com.fortunae.execptions.InvalidDetailsException;
+import com.fortunae.execptions.UserNotFoundException;
 import com.fortunae.execptions.ViewerNotFoundException;
 import com.fortunae.utils.JwtUtils;
 import org.modelmapper.ModelMapper;
@@ -23,7 +19,7 @@ import static com.fortunae.utils.ValidationUtils.isValidEmail;
 import static com.fortunae.utils.ValidationUtils.isValidPassword;
 
 @Service
-public class ViewerServiceImpl implements ViewerService {
+public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
@@ -31,11 +27,10 @@ public class ViewerServiceImpl implements ViewerService {
     private ModelMapper modelMapper;
 
     @Override
-    public RegisterUserResponse registerViewer(RegisterUserRequest request) {
+    public RegisterUserResponse registerUser(RegisterUserRequest request) {
         validateFields(request.getEmail(), request.getPassword());
         doesUserExists(request.getEmail());
         User user = modelMapper.map(request, User.class);
-        user.setRole(Role.VIEWER);
         user = userRepository.save(user);
         RegisterUserResponse response = modelMapper.map(user, RegisterUserResponse.class);
         response.setMessage("Viewer registered successfully");
@@ -48,18 +43,18 @@ public class ViewerServiceImpl implements ViewerService {
     }
 
     @Override
-    public DeleteUserResponse deleteViewer(DeleteUserRequest request) {
+    public DeleteUserResponse deleteUser(DeleteUserRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ViewerNotFoundException("User with email " + request.getEmail() + " not found"));
 
-        if (user.getRole() == Role.VIEWER && user.getEmail().equals(request.getEmail())) {
+        if (user.getEmail().equals(request.getEmail())) {
             userRepository.delete(user);
             DeleteUserResponse response = new DeleteUserResponse();
             response.setMessage("Deleted viewer successfully");
             return response ;
         }
 
-        throw new IllegalStateException("The user is not a VIEWER or email does not match");
+        throw new IllegalStateException("The user email does not match");
     }
 
     private void validateFields(String email, String password) {
@@ -78,6 +73,35 @@ public class ViewerServiceImpl implements ViewerService {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
         return checkLoginDetail(email, password);
+    }
+
+    @Override
+    public UpdateDetailsResponse updateUser(UpdateDetailsRequest updateUserRequest) {
+        User user = userRepository.findByEmail(updateUserRequest.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User with email " + updateUserRequest.getEmail() + " not found"));
+        if(user.getEmail().equals(updateUserRequest.getEmail())){
+            user.setEmail(updateUserRequest.getEmail());
+            user.setFirstName(updateUserRequest.getFirstName());
+            user.setLastName(updateUserRequest.getLastName());
+            user.setPassword(updateUserRequest.getPassword());
+            user.setUsername(updateUserRequest.getUsername());
+            userRepository.save(user);
+        }
+        UpdateDetailsResponse response = new UpdateDetailsResponse();
+        response.setMessage("Updated successfully");
+        return response;
+    }
+
+    @Override
+    public AssignRolesResponse assignRoles(AssignRolesRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setRole(request.getRole());
+        userRepository.save(user);
+        AssignRolesResponse response = new AssignRolesResponse();
+        response.setMessage("Role Assigned Successful");
+        return response;
     }
 
     private LoginResponse checkLoginDetail(String email, String password) {
@@ -100,7 +124,7 @@ public class ViewerServiceImpl implements ViewerService {
         BeanUtils.copyProperties(admin, loginResponse);
         loginResponse.setJwtToken(accessToken);
         loginResponse.setMessage("Login Successful");
-        loginResponse.setRole(admin.getRole().toString());
+        loginResponse.setRole(admin.getRole());
         return loginResponse;
     }
 
