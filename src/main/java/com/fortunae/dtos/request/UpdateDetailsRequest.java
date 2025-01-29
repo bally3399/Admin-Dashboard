@@ -13,6 +13,7 @@ public class UpdateDetailsRequest {
     private String password;
     private String username;
     private String email;
+    private String newEmail;
     private Role role;
 
 }

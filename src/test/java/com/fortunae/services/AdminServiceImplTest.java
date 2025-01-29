@@ -16,13 +16,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AdminServiceImplTest {
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private UserService userService;
 
     private RegisterAdminRequest registerAdminRequest;
     private LoginResponse loginResponse;
     @BeforeEach
     public void setUp() {
         adminService.deleteAll();
-
+        userService.deleteAll();
         registerAdminRequest = new RegisterAdminRequest();
         registerAdminRequest.setFirstName("John");
         registerAdminRequest.setLastName("Doe");
@@ -73,14 +75,14 @@ public class AdminServiceImplTest {
     @Test
     public void testThatAdminCanAddUser(){
         RegisterUserRequest registerUserRequest = new RegisterUserRequest();
-        registerUserRequest.setFirstName("Jame");
-        registerUserRequest.setLastName("Jane");
-        registerUserRequest.setEmail("janet@doe.com");
+        registerUserRequest.setFirstName("Alison");
+        registerUserRequest.setLastName("Jacob");
+        registerUserRequest.setEmail("alice@doe.com");
         registerUserRequest.setPassword("Password@1234");
-        registerUserRequest.setUsername("janny");
+        registerUserRequest.setUsername("Alice");
         registerUserRequest.setRole(Role.VIEWER);
         RegisterUserResponse response = adminService.addUser(registerUserRequest);
-        assertEquals("janet@doe.com", response.getEmail());
+        assertEquals("alice@doe.com", response.getEmail());
     }
 
     @Test
@@ -102,33 +104,44 @@ public class AdminServiceImplTest {
     @Test
     public void testThatAdminCanUpdateUser(){
         RegisterUserRequest registerUserRequest = new RegisterUserRequest();
-        registerUserRequest.setFirstName("Jame");
+        registerUserRequest.setFirstName("Jetty");
         registerUserRequest.setLastName("Jane");
-        registerUserRequest.setEmail("johnson@doe.com");
+        registerUserRequest.setEmail("jetty@doe.com");
         registerUserRequest.setPassword("Password@1234");
         registerUserRequest.setUsername("janny");
         registerUserRequest.setRole(Role.VIEWER);
         adminService.addUser(registerUserRequest);
 
         UpdateDetailsRequest updateUserRequest = new UpdateDetailsRequest();
-        updateUserRequest.setFirstName("Johnson");
+        updateUserRequest.setEmail("jetty@doe.com");
+        updateUserRequest.setNewEmail("betty@doe.com");
+        updateUserRequest.setFirstName("Betty");
         updateUserRequest.setPassword("@Password11");
         updateUserRequest.setLastName("Joy");
         updateUserRequest.setUsername("Jane");
         updateUserRequest.setRole(Role.EDITOR);
-        updateUserRequest.setEmail("jane@doe.com");
         UpdateDetailsResponse response = adminService.updateDetails(updateUserRequest);
-        assertEquals("Updated Successfully", response.getMessage());
+        assertEquals("Updated successfully", response.getMessage());
     }
 
     @Test
-    public void testThatAdminCanAssignRole(){
-        AssignRolesRequest request = new AssignRolesRequest();
-        request.setEmail("Janett@doe.com");
-        request.setRole(Role.VIEWER);
-        AssignRolesResponse response = adminService.assignRoles(request);
-        assertEquals("Role Assigned Successful", response.getMessage());
+    public void testThatAdminCanAssignRole() {
+        // Step 1: Register the user first
+        RegisterUserRequest registerUserRequest = new RegisterUserRequest();
+        registerUserRequest.setFirstName("Betty");
+        registerUserRequest.setLastName("Joy");
+        registerUserRequest.setEmail("betty1@doe.com");
+        registerUserRequest.setPassword("@Password11");
+        registerUserRequest.setUsername("Jane");
+        registerUserRequest.setRole(Role.VIEWER);
+        adminService.addUser(registerUserRequest);
 
+        AssignRolesRequest request = new AssignRolesRequest();
+        request.setEmail("betty1@doe.com");
+        request.setRole(Role.EDITOR);
+        AssignRolesResponse response = adminService.assignRoles(request);
+
+        assertEquals("Role Assigned Successful", response.getMessage());
     }
 
 

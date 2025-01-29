@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(updateUserRequest.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User with email " + updateUserRequest.getEmail() + " not found"));
         if(user.getEmail().equals(updateUserRequest.getEmail())){
-            user.setEmail(updateUserRequest.getEmail());
+            user.setEmail(updateUserRequest.getNewEmail());
             user.setFirstName(updateUserRequest.getFirstName());
             user.setLastName(updateUserRequest.getLastName());
             user.setPassword(updateUserRequest.getPassword());
