@@ -4,6 +4,7 @@ import com.fortunae.data.model.Role;
 import com.fortunae.dtos.request.*;
 import com.fortunae.dtos.response.*;
 import com.fortunae.execptions.AdminExistException;
+import com.fortunae.execptions.SubAdminLimitExceededException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,7 +127,6 @@ public class AdminServiceImplTest {
 
     @Test
     public void testThatAdminCanAssignRole() {
-        // Step 1: Register the user first
         RegisterUserRequest registerUserRequest = new RegisterUserRequest();
         registerUserRequest.setFirstName("Betty");
         registerUserRequest.setLastName("Joy");
@@ -144,5 +144,26 @@ public class AdminServiceImplTest {
         assertEquals("Role Assigned Successful", response.getMessage());
     }
 
+    @Test
+    public void testAdminCannotAddMoreThanFiveSubAdmins() {
+        for (int i = 0; i < 5; i++) {
+            RegisterUserRequest request = new RegisterUserRequest();
+            request.setEmail("subadmin" + i + "@doe.com");
+            request.setPassword("Password@1234");
+            request.setUsername("subadmin" + i);
+            request.setRole(Role.ADMIN);
+            adminService.addUser(request);
+        }
+
+        RegisterUserRequest extraSubAdmin = new RegisterUserRequest();
+        extraSubAdmin.setEmail("subadmin6@doe.com");
+        extraSubAdmin.setPassword("Password@1234");
+        extraSubAdmin.setUsername("subadmin6");
+        extraSubAdmin.setRole(Role.ADMIN);
+
+        assertThrows(SubAdminLimitExceededException.class, () -> {
+            adminService.addUser(extraSubAdmin);
+        });
+    }
 
 }

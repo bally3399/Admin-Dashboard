@@ -1,10 +1,12 @@
 package com.fortunae.services;
 
+import com.fortunae.data.model.Role;
 import com.fortunae.data.model.User;
 import com.fortunae.data.repository.UserRepository;
 import com.fortunae.dtos.request.*;
 import com.fortunae.dtos.response.*;
 import com.fortunae.execptions.InvalidDetailsException;
+import com.fortunae.execptions.SubAdminLimitExceededException;
 import com.fortunae.execptions.UserNotFoundException;
 import com.fortunae.execptions.ViewerNotFoundException;
 import com.fortunae.utils.JwtUtils;
@@ -30,10 +32,18 @@ public class UserServiceImpl implements UserService {
     public RegisterUserResponse registerUser(RegisterUserRequest request) {
         validateFields(request.getEmail(), request.getPassword());
         doesUserExists(request.getEmail());
+
+        if (request.getRole() == Role.ADMIN) {
+            long subAdminCount = userRepository.countByRole(Role.ADMIN);
+            if (subAdminCount >= 5) {
+                throw new SubAdminLimitExceededException("An admin can have only 5 sub-admins.");
+            }
+        }
+
         User user = modelMapper.map(request, User.class);
         user = userRepository.save(user);
         RegisterUserResponse response = modelMapper.map(user, RegisterUserResponse.class);
-        response.setMessage("Viewer registered successfully");
+        response.setMessage("User registered successfully");
         return response;
     }
 
