@@ -1,5 +1,6 @@
 package com.fortunae.services;
 
+import com.fortunae.data.repository.UserRepository;
 import com.fortunae.dtos.request.DeleteUserRequest;
 import com.fortunae.dtos.request.LoginRequest;
 import com.fortunae.dtos.request.RegisterUserRequest;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class UserServiceImplTest {
@@ -18,6 +21,8 @@ public class UserServiceImplTest {
     private UserService userService;
     private RegisterUserRequest request;
     private LoginResponse loginResponse;
+    @Autowired
+    private UserRepository userRepository;
 
     @BeforeEach
     public void setUp() {
@@ -68,5 +73,23 @@ public class UserServiceImplTest {
         assertEquals("Deleted viewer successfully", response.getMessage());
 
     }
+
+    @Test
+    public void getCountOfTotalUserTest(){
+        assertEquals(0, userService.getTotalNumOfUser());
+
+    }
+
+    @Test
+    public void getActiveUserTest(){
+        assertEquals(0, userService.getActiveUser());
+    }
+    @Test
+    public void testGetNewSignups() {
+        LocalDate date = LocalDate.ofEpochDay(28-01-2025);
+        long newSignups = userService.getNewSignups(date);
+        assertTrue(newSignups >= 0);
+    }
+
 
 }

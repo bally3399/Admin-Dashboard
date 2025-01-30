@@ -17,4 +17,5 @@ public interface AdminService {
     UpdateDetailsResponse updateDetails(UpdateDetailsRequest updateUserRequest);
 
     AssignRolesResponse assignRoles(AssignRolesRequest request);
+
 }

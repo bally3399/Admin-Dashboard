@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static com.fortunae.utils.ValidationUtils.isValidEmail;
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = modelMapper.map(request, User.class);
+        user.setActive(true);
         user = userRepository.save(user);
         RegisterUserResponse response = modelMapper.map(user, RegisterUserResponse.class);
         response.setMessage("User registered successfully");
@@ -112,6 +114,21 @@ public class UserServiceImpl implements UserService {
         AssignRolesResponse response = new AssignRolesResponse();
         response.setMessage("Role Assigned Successful");
         return response;
+    }
+
+    @Override
+    public Long getTotalNumOfUser() {
+        return userRepository.count();
+    }
+
+    @Override
+    public Long getActiveUser() {
+        return userRepository.countActiveUsers();
+    }
+
+    @Override
+    public Long getNewSignups(LocalDate fromDate) {
+        return userRepository.countNewSignups(fromDate);
     }
 
     private LoginResponse checkLoginDetail(String email, String password) {

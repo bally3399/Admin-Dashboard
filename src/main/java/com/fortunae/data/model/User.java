@@ -29,6 +29,7 @@ public class User {
 
     private Role role;
 
+    private boolean isActive;
     @Setter(AccessLevel.NONE)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
