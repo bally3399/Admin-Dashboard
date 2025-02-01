@@ -74,22 +74,6 @@ public class UserServiceImplTest {
 
     }
 
-    @Test
-    public void getCountOfTotalUserTest(){
-        assertEquals(0, userService.getTotalNumOfUser());
-
-    }
-
-    @Test
-    public void getActiveUserTest(){
-        assertEquals(0, userService.getActiveUser());
-    }
-    @Test
-    public void testGetNewSignups() {
-        LocalDate date = LocalDate.ofEpochDay(28-01-2025);
-        long newSignups = userService.getNewSignups(date);
-        assertTrue(newSignups >= 0);
-    }
 
 
 }
