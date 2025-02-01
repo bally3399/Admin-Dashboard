@@ -100,6 +100,8 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
         }
         UpdateDetailsResponse response = new UpdateDetailsResponse();
+        response.setFirstName(updateUserRequest.getFirstName());
+        response.setLastName(updateUserRequest.getLastName());
         response.setMessage("Updated successfully");
         return response;
     }
@@ -122,7 +124,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Long getActiveUser() {
+    public long getActiveUser() {
         return userRepository.countActiveUsers();
     }
 

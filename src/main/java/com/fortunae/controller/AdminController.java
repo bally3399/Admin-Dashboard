@@ -2,6 +2,9 @@ package com.fortunae.controller;
 
 import com.fortunae.dtos.request.*;
 import com.fortunae.dtos.response.*;
+import com.fortunae.execptions.EmailAlreadyExistException;
+import com.fortunae.execptions.SubAdminLimitExceededException;
+import com.fortunae.execptions.UserAlreadyExistException;
 import com.fortunae.services.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +22,12 @@ public class AdminController {
 
     @PostMapping("/registerAdmin")
     public ResponseEntity<?> registerAdmin(@Valid @RequestBody RegisterAdminRequest request) {
-        RegisterUserResponse response = adminService.registerAdmin(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try{
+            RegisterUserResponse response = adminService.registerAdmin(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }catch(EmailAlreadyExistException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
@@ -31,11 +38,15 @@ public class AdminController {
 
     @PostMapping("/addUser")
     public ResponseEntity<?> addUser(@Valid @RequestBody RegisterUserRequest request) {
-        RegisterUserResponse response = adminService.addUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try{
+            RegisterUserResponse response = adminService.addUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }catch (SubAdminLimitExceededException | UserAlreadyExistException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
-    @PostMapping("/delete-user")
+    @DeleteMapping("/delete-user")
     public ResponseEntity<?> deleteUser(@Valid @RequestBody DeleteUserRequest request) {
         DeleteUserResponse response = adminService.deleteUser(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);

@@ -20,7 +20,7 @@ public interface UserService {
 
     Long getTotalNumOfUser();
 
-    Long getActiveUser();
+    long getActiveUser();
 
     Long getNewSignups(LocalDate fromDate);
 }

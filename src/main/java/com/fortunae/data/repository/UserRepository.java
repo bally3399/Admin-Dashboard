@@ -16,6 +16,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     @Query("{'createdAt': {$gte: ?0}}")
     Long countNewSignups(LocalDate fromDate);
 
-    @Query("{'isActive': true}")
-    Long countActiveUsers();
+    @Query(value = "{'isActive': true}", count = true)
+    long countActiveUsers();
+
 }

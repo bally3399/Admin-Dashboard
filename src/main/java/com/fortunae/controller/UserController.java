@@ -8,6 +8,8 @@ import com.fortunae.dtos.response.DeleteUserResponse;
 import com.fortunae.dtos.response.LoginResponse;
 import com.fortunae.dtos.response.RegisterUserResponse;
 import com.fortunae.dtos.response.UpdateDetailsResponse;
+import com.fortunae.execptions.UserAlreadyExistException;
+import com.fortunae.execptions.ViewerNotFoundException;
 import com.fortunae.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +30,12 @@ public class UserController {
 
     @PostMapping("/registerUser")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterUserRequest request) {
-        RegisterUserResponse response = userService.registerUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try{
+            RegisterUserResponse response = userService.registerUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }catch (ViewerNotFoundException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
     }
 
     @PostMapping("/login")
@@ -38,7 +44,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUser(@Valid @RequestBody DeleteUserRequest request) {
         DeleteUserResponse response = userService.deleteUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -52,7 +58,7 @@ public class UserController {
 
     @GetMapping("/getActive")
     public ResponseEntity<?> getActiveUser() {
-        Long response = userService.getActiveUser();
+        long response = userService.getActiveUser();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     @GetMapping("getTotal")
