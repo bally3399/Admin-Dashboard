@@ -1,5 +1,6 @@
 package com.fortunae.services;
 
+import com.fortunae.data.model.User;
 import com.fortunae.dtos.request.*;
 import com.fortunae.dtos.response.*;
 
@@ -23,4 +24,5 @@ public interface UserService {
     long getActiveUser();
 
     Long getNewSignups(LocalDate fromDate);
+
 }
