@@ -78,9 +78,14 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
         </dependency>
-
-
+    <!-- AWS SDK for Java -->
+    <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk</artifactId>
+        <version>1.12.300</version> <!-- use the latest version -->
+    </dependency>
     </dependencies>
+
 
     <build>
         <plugins>
