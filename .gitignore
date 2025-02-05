@@ -12,6 +12,8 @@ target/
 *.iml
 *.ipr
 
+
+
 ### Eclipse ###
 .apt_generated
 .classpath
@@ -33,6 +35,10 @@ build/
 
 ### VS Code ###
 .vscode/
+src/main/resources/secret.properties
 
 ### Mac OS ###
 .DS_Store
+
+# Ignore application.properties
+
