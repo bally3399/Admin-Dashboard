@@ -35,9 +35,10 @@ build/
 
 ### VS Code ###
 .vscode/
+src/main/resources/secret.properties
 
 ### Mac OS ###
 .DS_Store
 
 # Ignore application.properties
-application.properties
+
