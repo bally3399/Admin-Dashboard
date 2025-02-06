@@ -8,7 +8,6 @@ import com.fortunae.dtos.response.DeleteUserResponse;
 import com.fortunae.dtos.response.LoginResponse;
 import com.fortunae.dtos.response.RegisterUserResponse;
 import com.fortunae.dtos.response.UpdateDetailsResponse;
-import com.fortunae.execptions.UserAlreadyExistException;
 import com.fortunae.execptions.ViewerNotFoundException;
 import com.fortunae.services.UserService;
 import jakarta.validation.Valid;
