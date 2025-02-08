@@ -22,6 +22,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/v1/User")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired

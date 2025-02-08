@@ -16,16 +16,6 @@ public class ValidationUtils {
         return matcher.matches();
     }
 
-    public static boolean isValidPhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.isEmpty()) {
-            return false;
-        }
-
-        String phoneRegex = "^(\\+234|0)?(70|80|81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99)\\d{8}$";
-        Pattern pattern = Pattern.compile(phoneRegex);
-        Matcher matcher = pattern.matcher(phoneNumber);
-        return matcher.matches();
-    }
 
     public static boolean isValidPassword(String password) {
         if (password == null || password.isEmpty()) {
