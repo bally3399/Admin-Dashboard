@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static com.fortunae.utils.ValidationUtils.isValidEmail;
@@ -83,6 +84,21 @@ public class AdminServiceImpl implements AdminService{
     @Override
     public AssignRolesResponse assignRoles(AssignRolesRequest request) {
         return userService.assignRoles(request);
+    }
+
+    @Override
+    public Long getTotalNumOfUser() {
+        return userService.getTotalNumOfUser();
+    }
+
+    @Override
+    public long getActiveUser() {
+        return userService.getActiveUser();
+    }
+
+    @Override
+    public Long getNewSignups(LocalDate fromDate) {
+        return userService.getNewSignups(fromDate);
     }
 
     private LoginResponse checkLoginDetail(String email, String password) {

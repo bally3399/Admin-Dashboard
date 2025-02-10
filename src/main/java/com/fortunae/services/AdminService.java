@@ -3,6 +3,8 @@ package com.fortunae.services;
 import com.fortunae.dtos.request.*;
 import com.fortunae.dtos.response.*;
 
+import java.time.LocalDate;
+
 public interface AdminService {
     RegisterUserResponse registerAdmin(RegisterAdminRequest registerAdminRequest);
 
@@ -18,4 +20,9 @@ public interface AdminService {
 
     AssignRolesResponse assignRoles(AssignRolesRequest request);
 
+    Long getTotalNumOfUser();
+
+    long getActiveUser();
+
+    Long getNewSignups(LocalDate fromDate);
 }
