@@ -2,9 +2,7 @@ package com.fortunae.controller;
 
 import com.fortunae.dtos.request.*;
 import com.fortunae.dtos.response.*;
-import com.fortunae.execptions.EmailAlreadyExistException;
-import com.fortunae.execptions.SubAdminLimitExceededException;
-import com.fortunae.execptions.UserAlreadyExistException;
+import com.fortunae.execptions.*;
 import com.fortunae.services.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/Admin")
@@ -26,15 +26,19 @@ public class AdminController {
         try{
             RegisterUserResponse response = adminService.registerAdmin(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }catch(EmailAlreadyExistException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }catch(EmailAlreadyExistException | InvalidDetailsException e){
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        LoginResponse response = adminService.login(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            LoginResponse response = adminService.login(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch(InvalidDetailsException e){
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
+        }
     }
 
     @PostMapping("/addUser")
@@ -43,29 +47,59 @@ public class AdminController {
             RegisterUserResponse response = adminService.addUser(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }catch (SubAdminLimitExceededException | UserAlreadyExistException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/delete-user")
     public ResponseEntity<?> deleteUser(@Valid @RequestBody DeleteUserRequest request) {
-        DeleteUserResponse response = adminService.deleteUser(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        try {
+            DeleteUserResponse response = adminService.deleteUser(request);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (ViewerNotFoundException | InvalidDetailsException e){
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
+        }
     }
 
     @PostMapping("/assign")
     public ResponseEntity<?> assignRole(@Valid @RequestBody AssignRolesRequest request) {
-        AssignRolesResponse response = adminService.assignRoles(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        try {
+            AssignRolesResponse response = adminService.assignRoles(request);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (UserNotFoundException e){
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
+        }
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateDetails(@Valid @RequestBody UpdateDetailsRequest request) {
-        UpdateDetailsResponse response = adminService.updateDetails(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        try {
+            UpdateDetailsResponse response = adminService.updateDetails(request);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch(UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
+        }
+
     }
 
 
+    @GetMapping("/getActive")
+    public ResponseEntity<?> getActiveUser() {
+        long response = adminService.getActiveUser();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    @GetMapping("getTotal")
+    public ResponseEntity<?> getTotalUser() {
+        Long response = adminService.getTotalNumOfUser();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/newSignups")
+    public ResponseEntity<Long> getNewSignups() {
+        LocalDate oneWeekAgo = LocalDate.now().minusWeeks(1);
+        Long newSignups = adminService.getNewSignups(oneWeekAgo);
+        return ResponseEntity.status(HttpStatus.OK).body(newSignups);
+    }
 
 
 

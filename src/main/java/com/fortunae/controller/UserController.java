@@ -8,6 +8,8 @@ import com.fortunae.dtos.response.DeleteUserResponse;
 import com.fortunae.dtos.response.LoginResponse;
 import com.fortunae.dtos.response.RegisterUserResponse;
 import com.fortunae.dtos.response.UpdateDetailsResponse;
+import com.fortunae.execptions.InvalidDetailsException;
+import com.fortunae.execptions.UserNotFoundException;
 import com.fortunae.execptions.ViewerNotFoundException;
 import com.fortunae.services.UserService;
 import jakarta.validation.Valid;
@@ -33,44 +35,40 @@ public class UserController {
         try{
             RegisterUserResponse response = userService.registerUser(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }catch (ViewerNotFoundException e){
+        }catch (ViewerNotFoundException | InvalidDetailsException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        LoginResponse response = userService.login(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            LoginResponse response = userService.login(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (InvalidDetailsException e) {
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUser(@Valid @RequestBody DeleteUserRequest request) {
-        DeleteUserResponse response = userService.deleteUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            DeleteUserResponse response = userService.deleteUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (ViewerNotFoundException | InvalidDetailsException e){
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
+    }
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(@Valid @RequestBody UpdateDetailsRequest request) {
-        UpdateDetailsResponse response = userService.updateUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try{
+            UpdateDetailsResponse response = userService.updateUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch(UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/getActive")
-    public ResponseEntity<?> getActiveUser() {
-        long response = userService.getActiveUser();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-    @GetMapping("getTotal")
-    public ResponseEntity<?> getTotalUser() {
-        Long response = userService.getTotalNumOfUser();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
 
-    @GetMapping("/newSignups")
-    public ResponseEntity<Long> getNewSignups() {
-        LocalDate oneWeekAgo = LocalDate.now().minusWeeks(1);
-        Long newSignups = userService.getNewSignups(oneWeekAgo);
-        return ResponseEntity.status(HttpStatus.OK).body(newSignups);
-    }
 }
