@@ -57,7 +57,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (ViewerNotFoundException | InvalidDetailsException e){
             return ResponseEntity.status(HttpStatus.valueOf(e.getMessage())).body(e.getMessage());
-    }
+     }
     }
 
     @PutMapping("/update")
